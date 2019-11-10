@@ -32,6 +32,8 @@
 #include "Power.h"
 #include "display-helper.h"
 
+#define TAP_TO_WAKE_NODE "/sys/bus/i2c/devices/4-0020/input/input1/wake_gesture"
+
 namespace android {
 namespace hardware {
 namespace power {
@@ -212,8 +214,14 @@ Return<void> Power::powerHint(PowerHint_1_0 hint, int32_t data) {
     return Void();
 }
 
-Return<void> Power::setFeature(Feature /*feature*/, bool /*activate*/) {
-    // Nothing to do
+Return<void> Power::setFeature(Feature feature, bool activate) {
+    switch (feature) {
+        case Feature::POWER_FEATURE_DOUBLE_TAP_TO_WAKE:
+            ::android::base::WriteStringToFile(activate ? "1" : "0", TAP_TO_WAKE_NODE);
+            break;
+        default:
+            break;
+    }
     return Void();
 }
 
